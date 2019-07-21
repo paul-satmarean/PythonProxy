@@ -4,10 +4,11 @@ import socket
 import select
 import time
 import sys
+import re
 
 BUFFER_SIZE = 4096
 DELAY = 0.0001
-DEFAULT_FORWARD = ('0.0.0.0', 8000)
+# DEFAULT_FORWARD = ('0.0.0.0', 8000)
 
 class Forward:
     def __init__(self):
@@ -90,13 +91,19 @@ class Server:
     def on_recv(self):
         data = self.data
         # here we can parse and/or modify the data before send forward
-        print data
+        # print data
+        regex = "(?:GET|POST|PUT|OPTIONS|DELETE) (.+) HTTP/1.1.*"
+        url = ""
+        m = re.match(regex, data)
+        if m:
+            url = m.groups(1)
+            print url[0]
         self.channel[self.s].send(data)
 
 
 
 def main(args):
-    if len(args < 3):
+    if len(args) < 3:
         print 'Usage: <host> <port> <remote_host> <remote_port>'
         print 'Example : localhost 8080 localhost 8081'
         return
